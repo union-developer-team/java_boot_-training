@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: bootTraining
+  
+  # DB 설정 파일 분리
+  config:
+    import: "classpath:application-db.yml"
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # 개발 초기 추천
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+    thymeleaf:
+      cache: false  # 개발용 (화면 수정 즉시 반영)
+
+server:
+  port: 8085
