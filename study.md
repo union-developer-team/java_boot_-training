@@ -1,3 +1,4 @@
+day1.
 [application-db.yml] 
 ddl-auto: update > 엔티티 변경 시 테이블 보완(개발 추천)
 ddl-auto: create > 재시작마다 테이블 새로 생성(초기 연습용)
@@ -85,3 +86,27 @@ show-sql: true > 실행 SQL 콘솔 출력(학습에 유용)
 
 18. @NoArgsConstructor
 - 역할: 기본 생성자 자동 생성(Lombok)
+
+day2.
+[entity > CommonCode.java]
+
+1. @Table(name = "common_code", uniqueConstraints = @UniqueConstraint(columnNames = {"group_code", "common_code"}))
+- 역할: 테이블 이름과 복합 유니크 제약 지정
+- 설명: 테이블 이름은 common_code. group_code와 common_code 조합이 같으면 저장을 거부함
+- columnName 에는 자바 필드명이 아니라 DB 컬럼명을 적음
+- 예시: MENU + ITEM_LIST 는 한 번만 가능하고, JOB + ITEM_LIST 는 그룹이 달라서 가능
+
+2. @PrePersist
+- 역할: DB에 처음 저장되기 직전 메서드를 자동 호출
+- 설명: initDefault()에서 useYn이 null이면 "Y"로 채움. 메서드 이름은 상관없음
+
+3. 엔티티 객체
+- 역할: 엔티티는 JPA가 관리하는 영속 객체이다. 
+       @Entity가 붙은 클래스는 테이블과 매핑되고, 저장·조회·수정·삭제 대상이 된다.
+       만약 엔티티를 수정하면 JPA가 그 변경을 감지해 트랜잭션이 끝날 때 SQL로 반영한다.
+       그래서 엔티티는 Repository와 Service 내에서만 다루는 것이 맞다.
+
+4. DTO 객체
+- 역할: DTO는 요청과 응답을 옮기는 그릇이다. 테이블과 연결되자 않고, JPA가 추적하지 않는다.
+       화면이나 API가 필요로 하는 값만 담으며 프로젝트의 용도에 따라 DTO가 더 갈라지기도 한다.
+- 특징: DTO 객체는 별도 @Entity나 @Controller 처럼 DTO를 지정하는 어노테이션은 없다.

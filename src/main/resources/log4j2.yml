@@ -1,0 +1,107 @@
+# Log4j2 설정 파일. 
+Configuration:
+
+  # 각 로그에서 사용할 속성값.
+  # {이름} 형태로 아래에서 변수처럼 사용
+  Properties:
+    Property:
+      # 로그 파일이 저장될 디렉터리
+      # 로컬 테스트 시 해당 드라이브 루트에 디렉터리가 생성됨
+      # 서버(리눅스) 예시: /usr/local/tomcat/logs/mylog
+      - name: LOG_DIR
+        value: "${sys:catalina.base}/logs"
+
+      # 로그 한 줄의 패턴
+      # %d: 발생 일시
+      # %highlight{%-5p} : 레벨 5자리. 심각도별 기본 색 (DEBUG 파랑, INFO 녹색, WARN 노랑 등)
+      # %style{[%c]}{CYAN} : 로그가 발생한 클래스명. 청록색
+      # %m : 메시지, %n : 줄바꿈
+      - name: LAYOUT_PATTERN
+        value: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-5p}{RED} %style{[%c]}{CYAN} - %m%n"
+
+  # 로그를 어디에 남길지 정의.
+  Appenders:
+
+    # 콘솔 출력. name은 Logger의 AppenderRef.ref에서 가리키는 이름
+    # target: SYSTEM_OUT 은 표준 출력(콘솔) 고정
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "${LAYOUT_PATTERN}"
+        # 콘솔 색상 출력 활성화. 둘 다 false여야 ANSI 색이 적용됨
+        disableAnsi: false
+        noConsoleNoAnsi: false
+
+    # 일반 로그 파일. 날짜와 크기 기준으로 파일을 나눠 순환 저장
+    RollingFile:
+      - name: rollingFile
+        fileName: "${LOG_DIR}/bootTraining.log"                      # 현재 기록 중인 파일
+        filePattern: "${LOG_DIR}/bootTraining-%d{yyyy-MM-dd}-%i.log" # 순환 후 파일명. %d 날짜, %i 같은 날 순번
+        PatternLayout:
+          pattern: "${LAYOUT_PATTERN}"
+
+        # 파일을 교체하는 조건. 10KB 초과 또는 날짜가 바뀌면 새 파일  
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: "10KB"
+          TimeBasedTriggeringPolicy: {}
+
+        # ERROR 이상은 이 파일에서 제외하고, WARN 이하만 기록
+        Filters:
+          ThresholdFilter:
+            level: ERROR
+            onMatch: ACCEPT
+            onMismatch: DENY
+
+  # 어떤 패키지의 어떤 레벨을 어느 Appender로 보낼지 지정.
+  # 레벨 순서: TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+  # INFO로 지정하면 INFO, WARN, ERROR, FATAL이 출력됨. OFF면 해당 로거는 꺼짐
+  Loggers:
+
+    # 아래에서 따로 지정하지 않은 모든 로그의 기본 로거
+    Root:
+      level: INFO
+      AppenderRef:
+        - ref: console      # Appenders의 name: console
+        - ref: rollingFile  # 일반 로그 파일
+
+    Logger:
+      # 이 프로젝트 패키지. additivity: false 이면 Root로 다시 전달하지 않음
+      - name: com.unionYHM.bootTraining
+        level: INFO
+        additivity: false
+        AppenderRef:
+          - ref: console
+          - ref: rollingFile
+          - ref: rollingFileForErrorLevel # 이 패키지의 ERROR 이상은 에러 파일에도 기록
+
+      # 하이버네이트 로그
+      - name: org.hibernate
+        level: INFO
+        additivity: false
+        AppenderRef:
+          - ref: console
+          - ref: rollingFile
+
+      # 스프링 시큐리티 로그. 인가 과정을 보려면 DEBUG, 끄려면 OFF
+      - name: org.springframework.security
+        level: OFF
+        additivity: false
+        AppenderRef:
+          - ref: console
+          - ref: rollingFile
+
+      # 마이바티스 프레임워크 로그
+      - name: org.mybatis
+        level: DEBUG
+        additivity: false
+        AppenderRef:
+          - ref: console
+
+      # MemberMapper가 실행하는 SQL 로그
+      - name: com.unionYHM.bootTraining.member.mapper.MemberMapper
+        level: DEBUG
+        additivity: false
+        AppenderRef:
+          - ref: console
