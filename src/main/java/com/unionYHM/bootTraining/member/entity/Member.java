@@ -1,16 +1,20 @@
 package com.unionYHM.bootTraining.member.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,15 +56,29 @@ public class Member {
     private String name;
 
     @Column(nullable = false, length = 10)
-    private String postCode;
+    private String postCode; // 우편번호
 
     @Column(nullable = false, length = 100)
-    private String address1;
+    private String address1; // 기본주소
 
     @Column(nullable = false, length = 100)
-    private String addresss2;
+    private String addresss2; // 상세주소
 
+    // -----------------------------------------------------------------------
+    // JPA 에서 특정 날짜 및 시각(또는 다른 형식도 가능) 필드값을 자동으로 생성하려면
+    // JPA 감사(Auditing) 기능 사용을 위한 어노테이션 조합을 통해 자동 필드로 지정
+    // => 자동 등록된 필드가 위치한 클래스(= 엔티티)와 스프링 메인 클래스(XXXApplication)에 어노테이션 추가 설정 필요
     @CreatedDate // 생성 시각을 자동으로 채워주는 어노테이션
-    private LocalDate regDate;
+    private LocalDate regDate; // 가입일자
+
+    // -----------------------------------------------------------------------
+    // 사용자(Member)와 사용자권한(CommonCode)는 다대다(N:M) 관계이므로
+    // 완충 작용을 담당하는 MemberRole 엔티티를 추가로 정의하여 각각의 관계를 1:N 으로 풀어냄(Member 와 MemberRole 은 1:N 관계)
+    // => Member 엔티티에서 @OneToMany 어노테이션으로 1:N 관계에서의 1에 해당하나는 엔티티 관계 지정
+    // 1) mapperBy = "member" 속성: 현재 엔티티가 연관관계의 주인이 아니며, 이 때 상대방의 필드명을 지정하여 해당 필드를 기준으로 매핑 수행
+    // 2) cascade = CascadeType.ALL 속성: 부모 엔티이가 저장/삭제될 경우 지식 엔티티도 저장/삭제
+    // 3) orphanRemoval = true 속성: 부모 엔티티와 연관관계가 끊어진 자식 엔티티(= 고아객체) 자동으로 삭제
+    // @OneToMany (mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<MemberRole> roles = new ArrayList<>();
 
 }
