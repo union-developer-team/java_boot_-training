@@ -110,3 +110,7 @@ day2.
 - 역할: DTO는 요청과 응답을 옮기는 그릇이다. 테이블과 연결되자 않고, JPA가 추적하지 않는다.
        화면이나 API가 필요로 하는 값만 담으며 프로젝트의 용도에 따라 DTO가 더 갈라지기도 한다.
 - 특징: DTO 객체는 별도 @Entity나 @Controller 처럼 DTO를 지정하는 어노테이션은 없다.
+
+day3.
+
+1. JpaRepository를 상속한 인터페이스는 @Repository 없이도 Spring Data JPA가 구현 프록시를 생성하고 Bean으로 등록함. 
