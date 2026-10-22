@@ -7,6 +7,9 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.unionYHM.bootTraining.common.entity.CommonCode;
+import com.unionYHM.bootTraining.member.dto.MemberDTO;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -78,7 +81,29 @@ public class Member {
     // 1) mapperBy = "member" 속성: 현재 엔티티가 연관관계의 주인이 아니며, 이 때 상대방의 필드명을 지정하여 해당 필드를 기준으로 매핑 수행
     // 2) cascade = CascadeType.ALL 속성: 부모 엔티이가 저장/삭제될 경우 지식 엔티티도 저장/삭제
     // 3) orphanRemoval = true 속성: 부모 엔티티와 연관관계가 끊어진 자식 엔티티(= 고아객체) 자동으로 삭제
-    // @OneToMany (mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private List<MemberRole> roles = new ArrayList<>();
+    @OneToMany (mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemberRole> roles = new ArrayList<>();
+
+    // 사용자 권한을 추가하는 addMemberRole() 메서드 정의
+    public void addMemberRole(CommonCode role) {
+        // MemberRole 인스턴스 생성 시 생성자 파라미터로 현재 엔티티(Member)와 공통코드 엔티티(CommonCode) 전달
+        MemberRole memberRole = new MemberRole(this, role);
+
+        // 사용자 권한 목록 객체(List<MemberRole>)에 1개 권한 저장된 MemberRole 엔티티 추가
+        roles.add(memberRole);
+    }
+
+    // -------------------------------------------------------------------------------------------
+    // 회원 정보 수정(UPDATE)을 위한 메서드 추가 정의
+    // => 파라미터로 전달받은 MemberDTO 에 저장된 이름, 비밀번호, 주소만 현재 엔티티 필드에 저장
+    // => 이메일(로그인 아이디), 권한, 가입일자는 수정 대상이 아님
+    // => 더티 체킹(Dirty Checking) 기능에 의해 변경 사항이 감지되면 트랜잭션 종료 시점에 DB에 변경사항 업데이트
+    public void changeMember(MemberDTO memberDTO) {
+        this.name = memberDTO.getName();
+        this.password = memberDTO.getPassword();
+        this.postCode = memberDTO.getPostCode();
+        this.address1 = memberDTO.getAddress1();
+        this.addresss2 = memberDTO.getAddress2();
+    }
 
 }
