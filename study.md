@@ -114,3 +114,31 @@ day2.
 day3.
 
 1. JpaRepository를 상속한 인터페이스는 @Repository 없이도 Spring Data JPA가 구현 프록시를 생성하고 Bean으로 등록함. 
+
+2. toEntity() 와 ModelMapperUtils.java 객체의 차이점
+- 1) 화면에서 들어오는 정보는 DTO형태로 들어오며, 컨트롤러는 폼 값을 MemberDTO로 받는다.
+예문: 
+public String regist(@ModelAttribute("memberDTO") @Valid MemberDTO memberDTO, BindingResult bindingResult) {
+	// ...
+	memberService.registMember(memberDTO);
+
+- 2) 서비스에서 그 DTO를 엔티티로 바꾼 뒤 저장한다.
+예문: 
+// MemberDTO 객체 -> Member 엔티티로 변환
+Member member = memberDTO.toEntity();
+// ...
+Member resultMember = memberRepository.save(member);
+
+3. ModelMapperUtils.java
+- 설명: DTO와 엔티티를 서로 옮겨 담는 공통 변환기다.
+       .toEntity() 처럼 클래스마다 변환 메서드를 두지 않고, 어떤 클래스 쌍이든 한곳에서 바꾸게 만든 모듈객체이다.
+
+- 객체 구성:
+1) ModelMapper(외부라이브러리): 
+   역할: 필드를 복사하는 도구이고, 구성 메서드는 그 도구를 호출하는 입구이다.
+
+2) convertObjectByMap(원본객체, 바꿀클래스)
+   예시: convertObjectByMap(itemDTO, Item.class) -> 상품DTO를 엔티티로 변환
+
+3) convertList(원본리스트, 바꿀클래스)
+   예시: convertList(List<S> sourceList, Class<D> destinationClass) -> 상품 이미지 목록을 DTO로 변환
