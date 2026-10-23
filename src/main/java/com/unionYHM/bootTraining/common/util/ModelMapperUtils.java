@@ -34,7 +34,7 @@ public class ModelMapperUtils {
     // 첫번째 파라미터: 엔티티 객체 => 제네릭타입 S(Source) 로 표기
     // 두번째 파라미터: 변환할 클래스 객체 => 제네릭타입 D(Destination)로 표기
     // => 리턴타입: 두번째 파라미터로 전달받은 타입(D)
-    public <S, D> D conbertObjectByMap(Object sourceObject, Class<D> destinationClass) {
+    public static <S, D> D convertObjectByMap(Object sourceObject, Class<D> destinationClass) {
         return MODEL_MAPPER.map(sourceObject, destinationClass);
     }
 
