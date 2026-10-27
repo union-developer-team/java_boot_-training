@@ -310,3 +310,84 @@ JPQL(Java Persistence Query Language)
   원본 리스트를 돌면서 원소마다 map()과 같은 필드 복사를 하고, 그 결과를 List로 모은다. 변환 규칙은 convertObjectByMap()과 같다.
 
 day5.
+
+- 내용 없음.
+
+day6.
+
+Spring Security 인증 사용자 정보
+
+- 설명: 로그인에 성공하면 Spring Security는 현재 사용자의 인증 정보를 Authentication 객체로 관리한다.
+  이 프로젝트에서는 MemberLoginDTO가 UserDetails를 구현하여, 인증된 사용자의 이메일, 비밀번호, 권한 정보를
+  Spring Security가 사용할 수 있는 형태로 제공한다.
+
+UserDetails
+
+- 역할: Spring Security가 로그인 사용자 정보를 읽기 위한 인터페이스
+- 설명: 구현 클래스는 사용자명, 비밀번호, 권한과 계정 상태를 반환해야 한다.
+  MemberLoginDTO는 일반 화면 전달용 MemberDTO와 달리 로그인 인증에 필요한 정보를 담는 DTO이다.
+
+.getAuthorities()
+
+- 역할: 현재 사용자의 권한 목록을 Spring Security 형식으로 반환한다.
+- 설명: MemberLoginDTO의 roles는 프로젝트에서 사용하는 List<MemberRole> 타입이므로 그대로 반환할 수 없다.
+  roles의 각 MemberRole에서 공통코드 값을 꺼내 SimpleGrantedAuthority로 변환한 List를 반환한다.
+
+.stream()
+
+- 역할: 컬렉션의 요소를 순서대로 처리할 수 있는 Stream으로 변환한다.
+- 설명: roles.stream()은 List<MemberRole>의 각 권한을 하나씩 변환하기 위해 사용한다.
+
+.map()
+
+- 역할: Stream의 각 요소를 다른 타입의 값으로 변환한다.
+- 예문: .map(role -> new SimpleGrantedAuthority(role.getRole().getCommonCode()))
+- 설명: MemberRole 하나에서 role의 commonCode 값을 꺼내고, Spring Security가 인식하는 권한 객체로 바꾼다.
+
+.collect(Collectors.toList())
+
+- 역할: Stream 처리 결과를 List로 모은다.
+- 설명: map()으로 만들어진 SimpleGrantedAuthority 객체들을 List로 만들어 getAuthorities()의 반환값으로 사용한다.
+
+SimpleGrantedAuthority
+
+- 역할: 문자열 형태의 권한명을 Spring Security 권한 객체로 표현한다.
+- 설명: 생성자에 전달한 문자열이 권한명이 된다. 이 프로젝트에서는 공통코드의 commonCode 값이 권한명으로 사용된다.
+
+.getUsername()
+
+- 역할: 로그인 사용자의 사용자명을 반환한다.
+- 설명: 현재 프로젝트는 이메일을 사용자명으로 사용하므로 email 값을 반환한다.
+  Authentication.getName()을 호출해도 이 값이 사용자명으로 조회된다.
+
+.getPassword()
+
+- 역할: 로그인 사용자의 비밀번호 값을 반환한다.
+- 설명: Spring Security가 인증 과정에서 입력된 비밀번호와 저장된 암호화 비밀번호를 검증할 때 사용한다.
+
+.isAccountNonExpired(), .isAccountNonLocked(), .isCredentialsNonExpired(), .isEnabled()
+
+- 역할: 계정의 만료, 잠김, 비밀번호 만료, 활성화 상태를 반환한다.
+- 설명: 네 메서드가 모두 true이면 해당 상태에 의한 로그인 제한이 없다는 뜻이다.
+  현재는 실제 상태를 저장하거나 조회하는 로직이 없어서 true를 반환하며, 나중에 계정 상태 컬럼이나 조회 로직이 추가되면
+  그 결과를 반환하도록 변경할 수 있다.
+
+Authentication
+
+- 역할: 현재 요청의 인증 정보를 담는 Spring Security 객체
+- 설명: 컨트롤러 메서드 파라미터에 선언하면 Spring이 현재 인증 정보를 주입한다.
+  getName()으로 사용자명(현재 이메일), getAuthorities()로 권한 목록, getPrincipal()로 인증 주체 객체를 얻을 수 있다.
+
+@AuthenticationPrincipal
+
+- 역할: Authentication의 principal 객체를 컨트롤러 메서드 파라미터에 직접 주입한다.
+- 예문: public String showMemberProfile(Authentication authentication,
+  @AuthenticationPrincipal MemberLoginDTO memberLoginDTO)
+- 설명: authentication.getPrincipal()을 호출하고 MemberLoginDTO로 다운캐스팅하는 대신,
+  현재 로그인한 MemberLoginDTO를 바로 전달받는다.
+
+Authentication.getPrincipal()
+
+- 역할: 인증 주체 객체를 반환한다.
+- 설명: 로그인한 사용자가 UserDetails 구현체로 인증되었다면 그 구현체를 반환한다.
+  이 프로젝트에서는 MemberLoginDTO가 principal 객체가 되므로 @AuthenticationPrincipal로 직접 주입받아 사용할 수 있다.

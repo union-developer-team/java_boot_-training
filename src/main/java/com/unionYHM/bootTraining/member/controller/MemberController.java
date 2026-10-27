@@ -100,23 +100,33 @@ public class MemberController {
         // Authentication authentication =
         // SecurityContextHolder.getContext().getAuthentication();
         // => 메서드 파라미터로 Authentication 타입 객체 주입받아 사용 가능.
-        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getName() : " + authentication.getName()); // 사용자명(username = 현재
-                                                                                                  // email)
-        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getAuthorities() : " + authentication.getAuthorities()); // 사용자명(username
-                                                                                                                // = 현재
-                                                                                                                // email)
-        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getDetails() : " + authentication.getDetails()); // 상세정보(사용자 IP
-                                                                                                        // 주소, 세션 아이디)
-        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getPrincipal() : " + authentication.getPrincipal()); // 인증객체(userDetails
-                                                                                                            // 또는 상속받아
-                                                                                                            // 구현한 구현체 =
-                                                                                                            // 현재
-                                                                                                            // MemberLoginDTO)
+        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getName() : " + authentication.getName());
+        // 사용자명(username = 현재 email)
+
+        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getAuthorities() : " + authentication.getAuthorities());
+        // 사용자 권한 목록
+
+        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getDetails() : " + authentication.getDetails());
+        // 상세정보(사용자 IP 주소, 세션 아이디)
+
+        log.info(">>>>>>>>>>>>>>>>>>>>> authentication.getPrincipal() : " + authentication.getPrincipal());
+        // 인증객체(UserDetails 또는 상속받아 구현한 구현체 = MemberLoginDTO)
 
         // 인증객체는 Authentication 객체의 getPrincipal() 메서드로 얻어올 수 있음(= UserDetails 타입)
         // => 이 객체를 MemberLoginDTO 객체로 다운캐스팅하여 사용도 가능
         // MemberLoginDTO memberLoginDTO =
         // (MemberLoginDTO)authentication.getPrincipal();
+        // => 메서드 파라미터로 MemberLoginDTO 타입 객체 주입받아 사용 가능(@AuthenticationPrincipal 어노테이션
+        // 필수!)
+        log.info(">>>>>>>>>>>>>>>>>>>>> memberLoginDTO.getUsername : " + memberLoginDTO.getUsername());
+        // 사용자명
+
+        log.info(">>>>>>>>>>>>>>>>>>>>> memberLoginDTO.getAuthorities : " + memberLoginDTO.getAuthorities());
+        // 사용자 권한 목록
+
+        // ==================================================
+        // 이메일(사용자명) 가져와서 변수에 저장
+        String email = authentication.getName();
         return new String();
     }
 
