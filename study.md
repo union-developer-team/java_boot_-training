@@ -391,3 +391,53 @@ Authentication.getPrincipal()
 - 역할: 인증 주체 객체를 반환한다.
 - 설명: 로그인한 사용자가 UserDetails 구현체로 인증되었다면 그 구현체를 반환한다.
   이 프로젝트에서는 MemberLoginDTO가 principal 객체가 되므로 @AuthenticationPrincipal로 직접 주입받아 사용할 수 있다.
+
+day7.
+
+Model
+
+- 역할: Controller가 View로 데이터를 전달하는 객체
+- 설명: profile 조회에서 MemberDTO를 model.addAttribute("memberDTO", memberDTO)로 저장하면,
+  member_profile 화면에서 memberDTO의 값을 출력하거나 폼 입력값으로 사용할 수 있다.
+
+memberService.getMember()
+
+- 역할: 이메일을 기준으로 로그인 사용자의 회원 상세정보를 조회한다.
+- 설명: Controller는 Authentication.getName()으로 얻은 이메일만 전달하고, 실제 조회와 DTO 변환은 Service가 담당한다.
+  조회 결과가 없으면 Service에서 UsernameNotFoundException을 발생시킨다.
+
+memberDTO.setPassword("")
+
+- 역할: 조회한 회원 정보의 비밀번호를 화면에 전달하지 않도록 비운다.
+- 설명: DB에 저장된 비밀번호는 BCrypt 암호문이다. 이 값을 수정 폼에 다시 넣어 전송하면 암호문을 다시 encode하게 되어
+  로그인 검증에 실패할 수 있으므로, 화면에는 평문 비밀번호를 새로 입력받아 전달해야 한다.
+
+@PostMapping("/update")
+
+- 역할: POST 방식의 회원 정보 수정 요청을 처리한다.
+- 설명: GET 요청은 조회 화면을 보여 주고, 실제 데이터 변경은 POST 요청으로 분리한다.
+  수정 요청을 받은 Controller는 입력값 검증 후 Service에 처리를 위임하고, 성공하면 프로필 조회 주소로 리다이렉트한다.
+
+Authentication.getName()
+
+- 역할: 현재 인증된 사용자의 사용자명을 반환한다.
+- 설명: 이 프로젝트에서는 이메일이 사용자명이므로 수정 대상의 이메일로 사용한다.
+  폼에서 회원번호나 이메일을 받아 수정 대상을 정하지 않고 이 값을 사용하여 로그인한 본인만 수정할 수 있게 한다.
+
+BindingResult.hasErrors()
+
+- 역할: @Valid로 수행한 입력값 검증에서 오류가 발생했는지 확인한다.
+- 설명: true이면 Service의 수정 로직을 호출하지 않고 member_profile 화면으로 다시 이동한다.
+  이때 BindingResult는 @Valid가 붙은 MemberDTO 바로 다음 파라미터에 선언해야 검증 결과를 받을 수 있다.
+
+memberService.updateMember()
+
+- 역할: 로그인 사용자의 회원 정보를 수정한다.
+- 설명: 전달받은 로그인 이메일로 Member 엔티티를 조회한 뒤, 화면에서 새로 입력한 평문 비밀번호를 BCryptPasswordEncoder로 암호화한다.
+  이후 Member.changeMember()에 수정할 값만 전달한다.
+
+Member.changeMember()
+
+- 역할: 회원 엔티티에서 수정 가능한 필드만 변경한다.
+- 설명: 이름, 비밀번호, 우편번호, 주소만 변경하며 이메일, 권한, 가입일자는 변경하지 않는다.
+  조회한 Member는 트랜잭션 안에서 관리되는 엔티티이므로 별도의 save() 호출 없이도 트랜잭션 종료 시 더티 체킹으로 UPDATE가 반영된다.

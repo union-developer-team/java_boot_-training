@@ -94,7 +94,7 @@ public class MemberController {
     // 인증 정보에 접근
     @GetMapping("/profile")
     public String showMemberProfile(Authentication authentication,
-            @AuthenticationPrincipal MemberLoginDTO memberLoginDTO) {
+            @AuthenticationPrincipal MemberLoginDTO memberLoginDTO, Model model) {
         // import org.springframework.security.core.Authentication 객체는
         // SecurityContextHolder 객체로부터 얻을 수 있다.
         // Authentication authentication =
@@ -127,7 +127,39 @@ public class MemberController {
         // ==================================================
         // 이메일(사용자명) 가져와서 변수에 저장
         String email = authentication.getName();
-        return new String();
+        // String email = memberLoginDTO.getUsername();
+
+        // MemberService - getMember() 메서드 호출하여 사용자 상세정보 조회
+        // => 파라미터 : 이메일(사용자 명) 리턴타입 : MemberDTO
+        MemberDTO memberDTO = memberService.getMember(email);
+
+        // 조회된 password 는 BCrypt 암호문이다.
+        // 비밀번호 입력란에 암호문을 담으면 수정 요청 시 암호문을 다시 암호화하게 되므로 화면에는 비워서 전달
+        memberDTO.setPassword("");
+        model.addAttribute("memberDTO", memberDTO);
+
+        return "member/member_profile";
+    }
+
+    // ==================================================
+    // 회원 정보 수정
+    // => 수정 대상은 로그인 사용자 본인(Authentication 의 이메일)만 사용
+    // 품에 회원번호를 받지 않으므로 다른 회원 정보를 덮어쓰지 않음
+    @PostMapping("/update")
+    public String updateMember(@ModelAttribute("memberDTO") @Valid MemberDTO memberDTO, BindingResult bindingResult,
+            Authentication authentication) {
+        log.info(">>>>>>>>>>>>>>>>>>>>> 회원 정보 수정 요청 email : " + authentication.getName());
+
+        // 입력값 검증 결과가 true 일 때(= 검증 오류 발생 시) 다시 상세 화면으로 포워딩
+        if (bindingResult.hasErrors()) {
+            return "member/member_profile";
+        }
+
+        // MemberService - updateMember() 메서드 호출하여 회원정보 수정 요청
+        // => 파라미터 : 로그인 이메일, MemberDTO
+        memberService.updateMember(authentication.getName(), memberDTO);
+
+        return "redirect:/members/profile";
     }
 
 }
