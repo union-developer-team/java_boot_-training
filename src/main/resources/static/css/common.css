@@ -1,0 +1,7 @@
+@charset "UTF-8";
+/* 입력값 검증 에러 메세지 div 영역 */
+.error_msg {
+    font-size: 12px;
+    color: red;
+    
+} 

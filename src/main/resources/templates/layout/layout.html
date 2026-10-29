@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- Thymleaf Layout Dialect 사용을 위해 공통 레이아웃을 구성하는 페이지 html 태그에 네임스페이스 추가 -->
+<!-- 타임리프 템플릿 페이지에서 스프링 시큐리티 관련 기능 사용을 위해 sec 네임스페이스 추가 -->
+ <html xmlns:th="http://www.thymeleaf.org"
+       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+ <head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+
+    <!-- CSRF 토큰값과 CSRF 헤더명 포함시키기(각 모듈 페이지에서 AJAX 등의 요청 시 활용 가능) -->
+    <!-- <meta name="_csrf_token" th:content="${_csrf.token}"> -->
+    <!-- <meta name="_csrf_headerName" th:content="${_csrf.headerName}"> -->
+
+    <!-- 공통 CSS, JS 등의 리소스 불러오는 영역 -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+
+    <!-- 공통 자바스크립트 영역 -->
+    <script src="/js/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        console.log("공통 자바스크립트 영역 코드 실행!");
+    </script>
+ </head>
+ <body>
+    <!-- 공통 헤더 -->
+    <header th:insert="~{fragment/header}">임시 헤더 내용</header>
+    <hr>
+
+    <!-- 본문 -->
+    <main>
+        <!-- 실제 본문에 해당하는 컨텐츠가 표시될 영역을 레이아웃 페이지에서 프래그먼트로 선언 -->
+        <th:block layout:fragment="content"></th:block>
+    </main>
+ </body>
+
+ </html>
