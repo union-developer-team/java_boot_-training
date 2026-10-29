@@ -441,3 +441,217 @@ Member.changeMember()
 - 역할: 회원 엔티티에서 수정 가능한 필드만 변경한다.
 - 설명: 이름, 비밀번호, 우편번호, 주소만 변경하며 이메일, 권한, 가입일자는 변경하지 않는다.
   조회한 Member는 트랜잭션 안에서 관리되는 엔티티이므로 별도의 save() 호출 없이도 트랜잭션 종료 시 더티 체킹으로 UPDATE가 반영된다.
+
+day8.
+
+[static > css > common.css]
+
+@charset "UTF-8";
+
+- 역할: CSS 파일의 문자 인코딩 방식을 UTF-8로 지정한다.
+- 설명: 브라우저가 CSS 파일에 작성된 한글 주석, 문자열, 특수문자 등을 UTF-8 방식으로 올바르게 해석하도록 알려 준다.
+- 주의: Java의 어노테이션이 아니라 CSS의 at-rule(앳 룰)이며, 다른 스타일 규칙이나 주석보다 먼저 CSS 파일의 첫 줄에 작성해야 한다.
+
+[templates > layout > layout.html]
+
+HTML 네임스페이스(namespace)
+
+- 설명: HTML에서 th, layout, sec 같은 접두사가 어떤 템플릿 기능을 의미하는지 선언한다.
+- 주의: 네임스페이스 주소는 외부 웹페이지에 접속하기 위한 주소가 아니라, 속성의 종류를 구분하기 위한 식별자이다.
+
+1. xmlns:th="http://www.thymeleaf.org"
+
+- 역할: Thymeleaf 기본 기능을 사용하기 위한 네임스페이스를 선언한다.
+- 설명: th:text, th:href, th:if, th:each 등 Thymeleaf가 제공하는 HTML 속성을 사용할 수 있게 한다.
+- 예시: <span th:text="${member.name}">회원명</span>
+- 주의: 현재 코드의 thymleaf는 오타이며 thymeleaf로 작성해야 한다.
+
+2. xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+
+- 역할: Thymeleaf Layout Dialect 기능을 사용하기 위한 네임스페이스를 선언한다.
+- 설명: 공통 레이아웃을 만들고 각 화면에서 레이아웃을 상속하거나 특정 영역의 내용을 교체할 때 사용한다.
+- 주요 속성:
+  layout:decorate > 적용할 공통 레이아웃을 지정한다.
+  layout:fragment > 하위 화면에서 교체하거나 삽입할 영역을 지정한다.
+- 예시: <html layout:decorate="~{layout/layout}">
+
+3. xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+
+- 역할: Thymeleaf에서 Spring Security의 인증 및 권한 정보를 사용하기 위한 네임스페이스를 선언한다.
+- 설명: 로그인 여부나 사용자의 권한에 따라 HTML 요소를 표시하거나, 현재 로그인한 사용자 정보를 출력할 때 사용한다.
+- 주요 속성:
+  sec:authorize > 인증 여부 또는 권한에 따라 요소의 표시 여부를 결정한다.
+  sec:authentication > 현재 인증된 사용자의 정보를 출력한다.
+- 예시: <div sec:authorize="isAuthenticated()">로그인한 사용자에게 표시</div>
+- 주의: sec 접두사를 사용하려면 xmlns:sec로 선언해야 한다.
+
+[templates > layout > layout.html]
+
+<link> 태그
+
+- 역할: 현재 HTML 문서와 외부 리소스의 관계를 연결한다.
+- 설명: 주로 CSS 파일, 아이콘 파일, 웹 폰트 등의 외부 리소스를 HTML 문서에서 불러올 때 사용한다.
+- 특징: 일반적으로 <head> 영역에 작성하며, 별도의 종료 태그를 사용하지 않는 빈 요소이다.
+
+1. rel="stylesheet"
+
+- 속성 역할: 현재 HTML 문서와 불러올 외부 리소스의 관계를 지정한다.
+- stylesheet 값: 연결할 외부 리소스가 CSS 스타일시트라는 의미이다.
+- 설명: 브라우저는 href 또는 th:href가 가리키는 파일을 CSS로 해석하여 현재 HTML 문서에 적용한다.
+- 주의: rel 속성이 없거나 값이 stylesheet가 아니면 연결된 CSS가 스타일시트로 적용되지 않을 수 있다.
+
+2. th:href="@{/css/common.css}"
+
+- 속성 역할: Thymeleaf가 CSS 파일의 경로를 생성하도록 지정한다.
+- th 접두사: 해당 속성을 Thymeleaf가 서버에서 처리한다는 의미이다.
+- href 역할: 현재 HTML 문서와 연결할 리소스의 주소를 지정한다.
+- @{...} 역할: Thymeleaf의 URL 링크 표현식이다.
+- /css/common.css 값: 애플리케이션을 기준으로 접근할 CSS 파일의 경로이다.
+- 설명: 서버가 HTML을 렌더링할 때 애플리케이션의 Context Path를 반영한 실제 href 속성으로 변환한다.
+- 연결 파일: src/main/resources/static/css/common.css
+- 변환 예시:
+  th:href="@{/css/common.css}"
+  → href="/css/common.css"
+
+3. href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+
+- 속성 역할: 브라우저가 불러올 외부 리소스의 주소를 직접 지정한다.
+- 설명: jsDelivr CDN에 저장된 Bootstrap 5.3.8의 압축된 CSS 파일을 불러온다.
+
+4. integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+
+- 속성 역할: CDN에서 내려받은 파일이 변조되지 않았는지 확인한다.
+- 설명: 브라우저가 내려받은 Bootstrap CSS 파일의 해시값을 계산하고, integrity에 작성된 값과 비교한다.
+  두 값이 같으면 CSS를 적용하고, 다르면 변조되었거나 다른 파일로 판단하여 적용을 차단한다.
+- 기능 이름: SRI(Subresource Integrity)
+- 주의: 파일을 암호화하는 속성이 아니라 파일 내용의 무결성을 검증하는 속성이다.
+
+5. crossorigin="anonymous"
+
+- 속성 역할: 다른 도메인의 리소스를 요청할 때 사용할 CORS 방식을 지정한다.
+- anonymous 값: 쿠키, HTTP 인증 정보 등의 사용자 자격 증명을 보내지 않고 리소스를 요청한다는 의미이다.
+- 설명: 현재 HTML을 제공하는 서버와 cdn.jsdelivr.net은 서로 다른 출처이므로 교차 출처 요청이 발생한다.
+  integrity를 이용해 CDN 파일을 검증할 때 crossorigin="anonymous"를 함께 사용하는 것이 일반적이다.
+- 주의: anonymous는 사용자의 신원을 숨기는 개인정보 보호 기능이 아니라, 교차 출처 요청에 인증정보를 포함하지 않는다는 의미이다.
+
+6. 두 <link> 태그의 차이
+
+- th:href를 사용한 태그:
+  프로젝트 내부의 common.css를 불러온다.
+  Thymeleaf가 애플리케이션 경로를 반영하여 URL을 생성한다.
+
+- href를 사용한 태그:
+  외부 jsDelivr CDN에서 Bootstrap CSS를 직접 불러온다.
+  일반 HTML 속성이므로 Thymeleaf의 URL 변환 과정을 거치지 않는다.
+
+7. CSS 적용 순서 주의사항
+
+- 설명: CSS 파일은 HTML에 작성된 순서대로 불러온다.
+  현재는 common.css가 먼저 로드되고 Bootstrap CSS가 나중에 로드된다.
+- 주의: 두 CSS 규칙의 선택자 우선순위가 같으면 나중에 불러온 Bootstrap 스타일이 common.css의 스타일을 덮어쓸 수 있다.
+- 대안: Bootstrap 기본 스타일을 common.css에서 재정의하려는 경우에는 Bootstrap CSS를 먼저 작성하고 common.css를 나중에 작성하는 것이 일반적이다.
+
+[templates > layout > layout.html]
+
+<script> 태그
+
+- 역할: HTML 문서에서 JavaScript 코드를 직접 작성하거나 외부 JavaScript 파일을 불러온다.
+- 설명: src 속성이 있으면 지정된 JavaScript 파일을 내려받아 실행한다.
+- 특징: <link> 태그와 달리 반드시 </script> 종료 태그를 작성해야 한다.
+
+1. <script src="/js/jquery-3.7.1.js"></script>
+
+- 역할: 프로젝트 내부에 저장된 jQuery 3.7.1 JavaScript 파일을 불러온다.
+- 설명: 브라우저가 /js/jquery-3.7.1.js 경로로 파일을 요청하고, 내려받은 jQuery 코드를 실행한다.
+
+1-1. src
+
+- 역할: 불러올 JavaScript 파일의 위치를 지정한다.
+- 설명: source의 약자로, 외부 JavaScript 파일의 URL 또는 프로젝트 내부 경로를 값으로 사용한다.
+
+1-2. /js/jquery-3.7.1.js
+
+- / 설명: 현재 도메인의 최상위 경로를 기준으로 요청한다.
+- js 설명: JavaScript 파일을 제공하는 디렉터리 경로이다.
+- jquery 설명: jQuery 라이브러리 파일이라는 의미이다.
+- 3.7.1 설명: 사용하려는 jQuery의 버전이다.
+- .js 설명: JavaScript 파일 확장자이다.
+- Spring Boot 연결 위치: 일반적으로 src/main/resources/static/js/jquery-3.7.1.js 파일과 연결된다.
+
+1-3. jQuery
+
+- 역할: DOM 탐색 및 조작, 이벤트 처리, AJAX 요청 등을 편리하게 작성할 수 있도록 도와주는 JavaScript 라이브러리이다.
+- 설명: jQuery 파일을 불러오면 $ 또는 jQuery 객체를 이용하여 jQuery 기능을 사용할 수 있다.
+- 예시: $(".menu").hide();
+
+2. <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+
+- 역할: jsDelivr CDN에서 Bootstrap 5.3.8의 JavaScript 파일을 불러온다.
+- 설명: 모달, 드롭다운, 내비게이션 바, 툴팁 등 Bootstrap의 동적 UI 기능을 사용할 수 있게 한다.
+
+2-1. https://
+
+- 역할: HTTPS 통신으로 JavaScript 파일을 요청한다.
+- 설명: 브라우저와 CDN 서버 사이에서 전송되는 데이터를 암호화한다.
+
+2-2. cdn.jsdelivr.net
+
+- 역할: Bootstrap 파일을 제공하는 jsDelivr CDN 서버의 도메인이다.
+- 설명: CDN을 이용하면 외부 라이브러리 파일을 여러 지역의 서버에서 빠르게 내려받을 수 있다.
+
+2-3. /npm/bootstrap@5.3.8
+
+- npm 설명: npm에 등록된 패키지를 가져온다는 의미이다.
+- bootstrap 설명: 불러올 패키지의 이름이다.
+- @5.3.8 설명: 사용할 Bootstrap 버전을 5.3.8로 고정한다.
+
+2-4. /dist/js/bootstrap.bundle.min.js
+
+- dist 설명: 배포용으로 만들어진 파일이 저장된 디렉터리이다.
+- js 설명: JavaScript 파일이 저장된 디렉터리이다.
+- bootstrap 설명: Bootstrap의 JavaScript 기능이 포함되어 있다는 의미이다.
+- bundle 설명: Bootstrap JavaScript와 Popper 라이브러리가 하나의 파일에 함께 포함되어 있다는 의미이다.
+- min 설명: 공백과 줄바꿈 등을 제거하여 파일 크기를 줄인 압축 파일이라는 의미이다.
+- .js 설명: JavaScript 파일 확장자이다.
+
+3. integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+
+- 역할: CDN에서 받은 Bootstrap JavaScript 파일이 변조되지 않았는지 검증한다.
+- 설명: 브라우저가 내려받은 파일의 SHA-384 해시를 계산하고 integrity에 작성된 값과 비교한다.
+  값이 일치하면 파일을 실행하고, 일치하지 않으면 실행을 차단한다.
+- 기능 이름: SRI(Subresource Integrity)
+- 주의: JavaScript 파일을 암호화하는 기능이 아니라 파일의 무결성을 확인하는 기능이다.
+
+3-1. sha384
+
+- 역할: 파일의 해시값을 계산할 때 SHA-384 알고리즘을 사용하도록 지정한다.
+- 설명: sha384 뒤의 하이픈(-)은 알고리즘 이름과 실제 해시값을 구분한다.
+
+3-2. FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI
+
+- 역할: Bootstrap 5.3.8의 bootstrap.bundle.min.js 파일에 해당하는 해시값이다.
+- 설명: SHA-384 계산 결과를 Base64 형식으로 표현한 값이다.
+- 주의: Bootstrap 버전이나 불러오는 파일이 변경되면 integrity 값도 함께 변경해야 한다.
+
+4. crossorigin="anonymous"
+
+- 역할: 다른 출처의 CDN 파일을 요청할 때 적용할 CORS 방식을 지정한다.
+- anonymous 설명: 쿠키나 HTTP 인증정보 등의 사용자 자격 증명을 포함하지 않고 파일을 요청한다.
+- 설명: 현재 애플리케이션과 cdn.jsdelivr.net은 서로 다른 출처이므로 교차 출처 요청이 발생한다.
+  CDN 파일의 integrity를 검증할 때 함께 사용하는 속성이다.
+- 주의: 사용자의 신원을 숨기는 기능이 아니라 요청에 인증정보를 포함하지 않는다는 의미이다.
+
+5. JavaScript 실행 순서
+
+- 설명: 일반적인 script 태그는 HTML에 작성된 순서대로 내려받고 실행한다.
+- 현재 순서:
+  1. jquery-3.7.1.js 실행
+  2. bootstrap.bundle.min.js 실행
+- 참고: Bootstrap 5는 jQuery에 의존하지 않으므로 Bootstrap을 사용하기 위해 반드시 jQuery를 먼저 불러올 필요는 없다.
+  하지만 프로젝트의 다른 JavaScript 코드가 jQuery를 사용한다면 jQuery 파일이 먼저 로드되어야 한다.
+
+6. <head> 영역에 작성할 때 주의사항
+
+- 설명: defer 속성이 없는 외부 script 태그를 <head>에 작성하면 브라우저가 JavaScript 파일을 내려받고 실행할 때까지 HTML 해석이 일시적으로 중단될 수 있다.
+- 대안: HTML 해석이 끝난 다음 JavaScript를 실행하려면 defer 속성을 사용할 수 있다.
+- 예시: <script src="/js/jquery-3.7.1.js" defer></script>
