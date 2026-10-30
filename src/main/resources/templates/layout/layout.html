@@ -37,6 +37,12 @@
         <!-- 실제 본문에 해당하는 컨텐츠가 표시될 영역을 레이아웃 페이지에서 프래그먼트로 선언 -->
         <th:block layout:fragment="content"></th:block>
     </main>
+    <hr>
+    <!-- 공통 푸터 -->
+    <footer th:insert="~{fragment/footer}"></footer>
+
+    <!-- 개별 컨텐츠 페이지의 자바스크립트 영역 지정(컨텐츠 페이지에서 생성하는 자바스크립트 코드영역과 결합됨) -->
+    <th:block layout:fragment="myScript"></th:block>
  </body>
 
  </html>
